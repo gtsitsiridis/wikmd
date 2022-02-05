@@ -35,10 +35,11 @@
         <button type="submit" class="btn btn-primary mb-2">Save</button>
 
     </form>
-    <script type="text/javascript" src="/static/js/new.js"></script>
+    <script src="/static/js/filepond.js"></script>
+    <script src="/static/js/new.js"></script>
     <script>
-        {% if system.darktheme == True%}
-            editor.setOption("theme", "ayu-mirage");
-        {% endif %}
+                {% if system.darktheme == True%}
+                    editor.setOption("theme", "ayu-mirage");
+                {% endif %}
     </script>
 {% endblock %}

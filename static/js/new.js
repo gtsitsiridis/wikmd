@@ -1,5 +1,3 @@
-import FilePond from './filepond'
-
 function copy_fun(mes) {
     var tempInput = document.createElement("input");
     tempInput.style = "position: absolute; left: -1000px; top: -1000px";
@@ -46,5 +44,17 @@ var editor = CodeMirror.fromTextArea(document.getElementById("content"), {
     extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
 });
 
+// function validate_form(that) {
+//     if (that.PN.value === "") {
+//         alert("Name must be filled out");
+//         return false;
+//     }
+// }
 
-autosave();
+// // This method will autosave the page every x seconds
+// function autosave() {
+//
+//     setTimeout(autosave, 10000);
+// }
+
+// autosave();
