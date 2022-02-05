@@ -21,7 +21,7 @@
     </style>
 {% endblock %}
 {% block content %}
-    <form onsubmit="if (validateForm()) save(this, true); return false;" id="page-form">
+    <form onsubmit="if (validateForm()) save(this.PN.value, true, false); return false;" id="page-form">
         <div class="form-group">
             <label for="name">Page name</label>
             <input type="text" class="form-control" id="name" name="PN" value="{{ title }}">

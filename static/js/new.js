@@ -61,19 +61,23 @@ function validateForm() {
     return true;
 }
 
-function save(that, redirect = false, auto = false) {
+function save(name, redirect = false, auto = false) {
+    let url = `/${window.location.pathname.split('/')[1]}`;
+    if (url === '/edit') {
+        url = url + "/" + pageName
+    }
     axios({
         method: 'post',
-        url: `/${window.location.pathname.split('/')[1]}/${pageName}`,
+        url: url,
         data: {
-            name: that.PN.value,
-            content: that.CT.value
+            name: name,
+            content: editor.getValue()
         }
     }).then((response) => {
         if (redirect) {
-            window.location.replace(`/${that.PN.value}`)
+            window.location.replace(`/${name}`)
         }
-        pageName = that.PN.value
+        pageName = name
         const today = new Date();
         var dt = today.toLocaleDateString("en-GB", { // you can use undefined as first argument
             year: "numeric",
@@ -101,7 +105,7 @@ function save(that, redirect = false, auto = false) {
 // This method will autosave the page every x seconds
 function autosave() {
     if (isValidForm()) {
-        save(document.getElementById("page-form"), false, true)
+        save(document.getElementById("page-form").PN.value, false, true)
     }
 }
 
