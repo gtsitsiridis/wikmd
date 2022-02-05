@@ -107,6 +107,10 @@ function save(name, redirect = false, auto = false) {
                 this.autosaveTimeout = setTimeout(autosave, AUTOSAVE_INTERVAL);
             }
         });
+    } else {
+        if (auto && document.getElementById("autosave").checked) {
+            this.autosaveTimeout = setTimeout(autosave, AUTOSAVE_INTERVAL);
+        }
     }
 }
 
