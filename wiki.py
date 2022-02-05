@@ -27,8 +27,11 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 
-def save(page_name):
-    content = request.form['CT']
+def save(data):
+    page_name = data['name']
+    if page_name[-4:] == "{id}":
+        page_name = f"{page_name[:-4]}{uuid.uuid4().hex}"
+    content = data['content']
     app.logger.info("saving " + page_name)
     try:
         filename = os.path.join(WIKI_DATA, page_name + '.md')
@@ -192,40 +195,34 @@ def index():
 @app.route('/add_new', methods=['POST', 'GET'])
 def add_new():
     if request.method == 'POST':
-        page_name = fetch_page_name()
-        save(page_name)
-
-        return redirect(url_for("file_page", file_page=page_name))
+        save(request.get_json())
+        return "OK"
     else:
-        return render_template('new.html', upload_path=IMAGES_ROUTE, system=SYSTEM_SETTINGS)
+        return render_template('new.html', upload_path=IMAGES_ROUTE, system=SYSTEM_SETTINGS, autosave=False)
 
 
 @app.route('/edit/homepage', methods=['POST', 'GET'])
 def edit_homepage():
     if request.method == 'POST':
-        page_name = fetch_page_name()
-        save(page_name)
-
-        return redirect(url_for("file_page", file_page=page_name))
+        save(request.get_json())
+        return "OK"
     else:
         with open(os.path.join(WIKI_DATA, 'homepage.md'), 'r', encoding="utf-8") as f:
             content = f.read()
         return render_template("new.html", content=content, title="homepage", upload_path=IMAGES_ROUTE,
-                               system=SYSTEM_SETTINGS)
+                               system=SYSTEM_SETTINGS, autosave=True)
 
 
-def fetch_page_name() -> str:
-    page_name = request.form['PN']
+def convert_page_name() -> str:
+    page_name = request.get_json()["name"]
     if page_name[-4:] == "{id}":
         page_name = f"{page_name[:-4]}{uuid.uuid4().hex}"
     return page_name
-
 
 @app.route('/remove/<path:page>', methods=['GET'])
 def remove(page):
     filename = os.path.join(WIKI_DATA, page + '.md')
     os.remove(filename)
-
     return redirect("/")
 
 
@@ -233,17 +230,16 @@ def remove(page):
 def edit(page):
     filename = os.path.join(WIKI_DATA, page + '.md')
     if request.method == 'POST':
-        page_name = fetch_page_name()
-        if page_name != page:
+        if request.get_json()['name'] != page:
             os.remove(filename)
 
-        save(page_name)
-        return redirect(url_for("file_page", file_page=page_name))
+        save(request.get_json())
+        return "OK"
     else:
         with open(filename, 'r', encoding="utf-8") as f:
             content = f.read()
         return render_template("new.html", content=content, title=page, upload_path=IMAGES_ROUTE,
-                               system=SYSTEM_SETTINGS)
+                               system=SYSTEM_SETTINGS, autosave=True)
 
 
 @app.route('/' + IMAGES_ROUTE, methods=['POST', 'DELETE'])

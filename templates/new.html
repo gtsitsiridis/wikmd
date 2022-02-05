@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block head %}
     <link href="/static/css/filepond.css" rel="stylesheet">
+    <link href="/static/css/new.css" rel="stylesheet">
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css">
     </link>
@@ -20,7 +21,7 @@
     </style>
 {% endblock %}
 {% block content %}
-    <form method="post">
+    <form onsubmit="if (validateForm()) save(this, true); return false;" id="page-form">
         <div class="form-group">
             <label for="name">Page name</label>
             <input type="text" class="form-control" id="name" name="PN" value="{{ title }}">
@@ -33,13 +34,22 @@
         <input type="file" multiple>
         <p id="message"></p>
         <button type="submit" class="btn btn-primary mb-2">Save</button>
-
+        {% if autosave %}
+            <div>Autosave</div>
+            <label class="switch">
+                <input type="checkbox" id="autosave" onclick="enableAutosave(this)">
+                <span class="slider round"></span>
+            </label>
+            <span style="padding-left: 50px" hidden id="save-time"></span>
+        {% endif %}
     </form>
+    {#    <!-- Axios -->#}
+    <script src="/static/js/axios.min.js"></script>
     <script src="/static/js/filepond.js"></script>
-    <script src="/static/js/new.js"></script>
+    <script src="/static/js/new.js" upload_path="{{ upload_path }}"></script>
     <script>
-                {% if system.darktheme == True%}
-                    editor.setOption("theme", "ayu-mirage");
-                {% endif %}
+        {% if system.darktheme == True%}
+            editor.setOption("theme", "ayu-mirage");
+        {% endif %}
     </script>
 {% endblock %}

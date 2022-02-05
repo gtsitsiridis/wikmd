@@ -1,3 +1,7 @@
+const UPLOAD_PATH = document.currentScript.getAttribute('upload_path');
+const AUTOSAVE_INTERVAL = 5000
+let pageName = window.location.pathname.split('/')[2]
+
 function copy_fun(mes) {
     var tempInput = document.createElement("input");
     tempInput.style = "position: absolute; left: -1000px; top: -1000px";
@@ -17,15 +21,15 @@ FilePond.setOptions({
     server: {
         url: '/',
         process: {
-            url: './{{upload_path}}',
+            url: `./${UPLOAD_PATH}`,
             onload: (response) => {
-                let filename = response;
+                filename = response;
                 messages.push(filename);
                 let mes = "";
                 let i;
                 for (i in messages) {
                     let md;
-                    md = "![caption](/{{upload_path}}/" + messages[i] + ")";
+                    md = `![caption](/${UPLOAD_PATH}/${messages[i]})`;
                     let m;
                     m = "<li>Use <b>" + md + "</b> inside your markdown file <a id='myLink' href='#' onclick=\"copy_fun('" + md + "')\">Copy</a> </li>";
                     mes = mes + m
@@ -44,17 +48,70 @@ var editor = CodeMirror.fromTextArea(document.getElementById("content"), {
     extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
 });
 
-// function validate_form(that) {
-//     if (that.PN.value === "") {
-//         alert("Name must be filled out");
-//         return false;
-//     }
-// }
+function isValidForm() {
+    let form = document.getElementById("page-form")
+    return form.PN.value !== "";
+}
 
-// // This method will autosave the page every x seconds
-// function autosave() {
-//
-//     setTimeout(autosave, 10000);
-// }
+function validateForm() {
+    if (!isValidForm()) {
+        alert("Page name must be filled out");
+        return false;
+    }
+    return true;
+}
 
-// autosave();
+function save(that, redirect = false, auto = false) {
+    axios({
+        method: 'post',
+        url: `/${window.location.pathname.split('/')[1]}/${pageName}`,
+        data: {
+            name: that.PN.value,
+            content: that.CT.value
+        }
+    }).then((response) => {
+        if (redirect) {
+            window.location.replace(`/${that.PN.value}`)
+        }
+        pageName = that.PN.value
+        const today = new Date();
+        var dt = today.toLocaleDateString("en-GB", { // you can use undefined as first argument
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+        });
+        let savetimeElement = document.getElementById("save-time")
+        savetimeElement.innerHTML = `Last saved: ${dt}`;
+        savetimeElement.hidden = false;
+
+        if (auto && document.getElementById("autosave").checked) {
+            this.autosaveTimeout = setTimeout(autosave, AUTOSAVE_INTERVAL);
+        }
+    }, (error) => {
+        console.log(error);
+        if (auto && document.getElementById("autosave").checked) {
+            this.autosaveTimeout = setTimeout(autosave, AUTOSAVE_INTERVAL);
+        }
+    });
+}
+
+// This method will autosave the page every x seconds
+function autosave() {
+    if (isValidForm()) {
+        save(document.getElementById("page-form"), false, true)
+    }
+}
+
+function enableAutosave(that) {
+    if (that.checked) {
+        autosave();
+    } else {
+        clearTimeout(this.autosaveTimeout)
+    }
+}
+
+
+
