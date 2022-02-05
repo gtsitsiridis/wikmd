@@ -1,6 +1,7 @@
 const UPLOAD_PATH = document.currentScript.getAttribute('upload_path');
 const AUTOSAVE_INTERVAL = 5000
-let pageName = window.location.pathname.split('/')[2]
+let pageName = window.location.pathname
+pageName = pageName.substring(pageName.indexOf('/', 1) + 1)
 
 function copy_fun(mes) {
     var tempInput = document.createElement("input");
